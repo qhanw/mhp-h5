@@ -1,8 +1,8 @@
-import React from "react";
+import { SignupForm } from "../ui/signup-form";
 
 const Login = () => (
   <div className="App">
-    <button>Click me</button>
+    <SignupForm />
   </div>
 );
 

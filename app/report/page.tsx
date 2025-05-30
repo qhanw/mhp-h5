@@ -1,8 +1,10 @@
+import { verifySession } from "@/app/lib/dal";
 import Image from "next/image";
 
 const src = "";
 
-export default function Report() {
+export default async function Report() {
+  const { isAuth } = await verifySession();
   return (
     <div
       className="mx-auto max-w-[210mm] px-3 prose prose-li:pl-0

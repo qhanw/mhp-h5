@@ -1,99 +1,136 @@
 "use client";
+import { Loader2Icon } from "lucide-react";
 
-import { useActionState } from "react";
+import { startTransition, useActionState, useRef } from "react";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
-
-import { signup } from "@/app/actions/auth";
 import { Input } from "@/components/ui/input";
 
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+import { signup } from "@/app/actions/auth";
+import { SignupFormSchema } from "@/app/lib/definitions";
+
+// https://dev.to/emmanuel_xs/how-to-use-react-hook-form-with-useactionstate-hook-in-nextjs15-1hja
+
 export function SignupForm() {
+  const formRef = useRef<HTMLFormElement>(null);
   const [state, action, pending] = useActionState(signup, undefined);
+
+  const form = useForm<z.infer<typeof SignupFormSchema>>({
+    resolver: zodResolver(SignupFormSchema),
+    defaultValues: { name: "", email: "", password: "" },
+  });
+
+  const onInvalid = () => {
+    startTransition(() => action(new FormData(formRef.current!)));
+  };
+
   return (
     <div className="mx-auto w-96 pt-24">
       <div className="login-logo w-16 h-16 bg-contain mb-4" />
       <h1 className="text-4xl">Welcome Back!</h1>
       <div>Enter to get unlimited access to data & information.</div>
 
-      <form action={action} className="space-y-6 mt-8">
-        <div>
-          <label
-            htmlFor="name"
-            className="block text-sm/6 font-medium text-gray-900"
-          >
-            Name
-          </label>
-          <div className="mt-2">
-            <Input
-              type="text"
-              name="name"
-              id="name"
-              autoComplete="name"
-              required
-            />
-          </div>
-        </div>
-        {state?.errors?.name && <p>{state.errors.name}</p>}
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm/6 font-medium text-gray-900"
-          >
-            Email address
-          </label>
-          <div className="mt-2">
-            <Input
-              type="email"
-              name="email"
-              id="email"
-              autoComplete="email"
-              required
-            />
-          </div>
-        </div>
-        {state?.errors?.email && <p>{state.errors.email}</p>}
+      <Form {...form}>
+        <form
+          ref={formRef}
+          onSubmit={form.handleSubmit(onInvalid)}
+          className="space-y-6 mt-8"
+        >
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input placeholder="name" {...field} />
+                </FormControl>
+                {/* <FormDescription>
+                  This is your public display name.
+                </FormDescription> */}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email address</FormLabel>
+                <FormControl>
+                  <Input placeholder="Email address" {...field} />
+                </FormControl>
+                {/* <FormDescription>
+                  This is your public display name.
+                </FormDescription> */}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <div>
-          <div className="flex items-center justify-between">
-            <label
-              htmlFor="password"
-              className="block text-sm/6 font-medium text-gray-900"
-            >
-              Password
-            </label>
-            <div className="text-sm">
-              <a
-                href="#"
-                className="font-semibold text-primary hover:text-primary/90"
-              >
-                Forgot password?
-              </a>
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center justify-between">
+                  <FormLabel>Password</FormLabel>
+                  <div className="text-sm">
+                    <a
+                      href="#"
+                      className="font-semibold text-primary hover:text-primary/90"
+                    >
+                      Forgot password?
+                    </a>
+                  </div>
+                </div>
+
+                <FormControl>
+                  <Input type="password" placeholder="Password" {...field} />
+                </FormControl>
+                {/* <FormDescription>
+                  This is your public display name.
+                </FormDescription> */}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/*          
+          {state?.errors?.password && (
+            <div>
+              <p>Password must:</p>
+              <ul>
+                {state.errors.password.map((error) => (
+                  <li key={error}>- {error}</li>
+                ))}
+              </ul>
             </div>
-          </div>
-          <div className="mt-2">
-            <Input
-              type="password"
-              name="password"
-              id="password"
-              required
-              autoComplete="current-password"
-            />
-          </div>
-        </div>
-        {state?.errors?.password && (
-          <div>
-            <p>Password must:</p>
-            <ul>
-              {state.errors.password.map((error) => (
-                <li key={error}>- {error}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+          )} */}
 
-        <div>
-          <Button>Sign Up</Button>
-        </div>
-      </form>
+          <div>
+            <Button disabled={pending}>
+              {pending && <Loader2Icon className="animate-spin" />}
+              Sign Up
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }

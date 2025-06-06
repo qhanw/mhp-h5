@@ -122,4 +122,11 @@
   body {
     @apply bg-background text-foreground;
   }
+
+
+
+  a {
+    @apply text-primary hover:text-primary/90 transition-colors;
+  }
+
 }

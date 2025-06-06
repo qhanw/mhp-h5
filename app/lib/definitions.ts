@@ -1,10 +1,6 @@
 import { z } from "zod";
 
-export const SignupFormSchema = z.object({
-  name: z
-    .string()
-    .min(2, { message: "Name must be at least 2 characters long." })
-    .trim(),
+const BaseAuthSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }).trim(),
   password: z
     .string()
@@ -15,6 +11,21 @@ export const SignupFormSchema = z.object({
       message: "Contain at least one special character.",
     })
     .trim(),
+});
+
+export const SignupFormSchema = BaseAuthSchema.extend({
+  name: z
+    .string()
+    .min(2, { message: "Name must be at least 2 characters long." })
+    .trim(),
+  confirmPassword: z.string().trim(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+export const SigninFormSchema = BaseAuthSchema.extend({
+  remember: z.boolean().optional(),
 });
 
 export type FormState =

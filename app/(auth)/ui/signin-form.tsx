@@ -10,6 +10,8 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 import {
   Form,
@@ -22,17 +24,17 @@ import {
 } from "@/components/ui/form";
 
 import { signup } from "@/app/actions/auth";
-import { SignupFormSchema } from "@/app/lib/definitions";
+import { SigninFormSchema } from "@/app/lib/definitions";
 
 // https://dev.to/emmanuel_xs/how-to-use-react-hook-form-with-useactionstate-hook-in-nextjs15-1hja
 
-export function SignupForm() {
+export function SigninForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, action, pending] = useActionState(signup, undefined);
 
-  const form = useForm<z.infer<typeof SignupFormSchema>>({
-    resolver: zodResolver(SignupFormSchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+  const form = useForm<z.infer<typeof SigninFormSchema>>({
+    resolver: zodResolver(SigninFormSchema),
+    defaultValues: { email: "", password: "" },
   });
 
   const onInvalid = () => {
@@ -42,7 +44,8 @@ export function SignupForm() {
   return (
     <div className="mx-auto w-96 pt-24">
       <div className="login-logo w-16 h-16 bg-contain mb-4" />
-      <h1 className="text-4xl">Sign up to MHP</h1>
+      <h1 className="text-4xl">Welcome Back!</h1>
+      <div>Enter to get unlimited access to data & information.</div>
 
       <Form {...form}>
         <form
@@ -50,22 +53,6 @@ export function SignupForm() {
           onSubmit={form.handleSubmit(onInvalid)}
           className="space-y-6 mt-8"
         >
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="name" {...field} />
-                </FormControl>
-                {/* <FormDescription>
-                  This is your public display name.
-                </FormDescription> */}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="email"
@@ -88,7 +75,14 @@ export function SignupForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <div className="flex items-center justify-between">
+                  <FormLabel>Password</FormLabel>
+                  <div className="text-sm">
+                    <a href="#" className="font-semibold">
+                      Forgot password?
+                    </a>
+                  </div>
+                </div>
 
                 <FormControl>
                   <Input type="password" placeholder="Password" {...field} />
@@ -100,15 +94,21 @@ export function SignupForm() {
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
-            name="confirmPassword"
+            name="remember"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="Password" {...field} />
-                </FormControl>
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="terms"
+                    onCheckedChange={field.onChange}
+                    checked={field.value}
+                  />
+                  <Label htmlFor="terms">Remember me</Label>
+                </div>
+
                 {/* <FormDescription>
                   This is your public display name.
                 </FormDescription> */}
@@ -116,27 +116,15 @@ export function SignupForm() {
               </FormItem>
             )}
           />
-
-          {/*          
-          {state?.errors?.password && (
-            <div>
-              <p>Password must:</p>
-              <ul>
-                {state.errors.password.map((error) => (
-                  <li key={error}>- {error}</li>
-                ))}
-              </ul>
-            </div>
-          )} */}
 
           <div>
             <Button className="w-full" disabled={pending}>
               {pending && <Loader2Icon className="animate-spin" />}
-              Sign Up
+              Sign In
             </Button>
           </div>
           <div>
-            Already have an account? <Link href="/signin">Sign In</Link>
+            Don't have an account? <Link href="/signup">Sign up</Link>
           </div>
         </form>
       </Form>

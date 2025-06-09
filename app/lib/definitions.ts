@@ -18,7 +18,10 @@ export const SignupFormSchema = BaseAuthSchema.extend({
     .string()
     .min(2, { message: "Name must be at least 2 characters long." })
     .trim(),
-  confirmPassword: z.string().trim(),
+  confirmPassword: z
+    .string()
+    .min(8, { message: "Be at least 8 characters long" })
+    .trim(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],

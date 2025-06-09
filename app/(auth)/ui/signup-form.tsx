@@ -2,11 +2,13 @@
 import Link from "next/link";
 import { Loader2Icon } from "lucide-react";
 
-import { startTransition, useActionState, useRef } from "react";
+import { startTransition, useActionState, useEffect, useRef } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +40,15 @@ export function SignupForm() {
   const onInvalid = () => {
     startTransition(() => action(new FormData(formRef.current!)));
   };
+
+  useEffect(() => {
+    if (state?.message) {
+      toast.error(state?.message, {
+        className: "!text-destructive",
+        position: "top-center",
+      });
+    }
+  }, [state]);
 
   return (
     <div className="mx-auto w-96 pt-24">

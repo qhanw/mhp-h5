@@ -27,14 +27,14 @@ export async function signup(state: FormState, formData: FormData) {
   const data = await db
     .insert(users)
     .values({ username: name, email, password: hashedPassword })
-    .returning({ id: users.id });
+    .returning({ id: users.id })
+    .catch((e) => console.log(e));
 
-  const user = data[0];
+  const user = data?.[0];
 
   if (!user) {
     return { message: "An error occurred while creating your account." };
   }
-
   // TODO:
   // 4. Create user session
   await createSession("userid");

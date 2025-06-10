@@ -10,9 +10,7 @@ export default async function Profile() {
   //   console.log("userRole", userRole);
   return (
     <>
-      <nav>
-        <Link href="/dashboard">link</Link>
-      </nav>
+     This page is user.
     </>
   );
 }

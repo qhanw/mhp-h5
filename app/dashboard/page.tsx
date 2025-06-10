@@ -7,23 +7,9 @@ export default async function Dashboard() {
   const userRole = session?.userId ? "user" : "admin"; // Assuming 'role' is part of the session object
 
   if (userRole === "admin") {
-    return (
-      <div>
-        <nav>
-          <Link href="/profile">link</Link>
-        </nav>
-        admin
-      </div>
-    );
+    return <div>This page is dashboard, current role: admin</div>;
   } else if (userRole === "user") {
-    return (
-      <div>
-        <nav>
-          <Link href="/profile">link</Link>
-        </nav>
-        user
-      </div>
-    );
+    return <div>This page is dashboard, current role: user</div>;
   } else {
     redirect("/login");
   }

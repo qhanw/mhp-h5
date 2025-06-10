@@ -2,11 +2,16 @@ import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 // import { eq } from "drizzle-orm";
 // import { users as usersTable } from "./schema";
-
+import * as schema from "./schema";
 export * from "./schema";
 
-export const db = drizzle(process.env.DATABASE_URL!);
-
+export const db = drizzle({
+  connection: {
+    connectionString: process.env.DATABASE_URL,
+    // ssl: true // 暂时不开启 否则数据库连接不上
+  },
+  schema,
+});
 
 // node-postgres with config
 
@@ -31,7 +36,6 @@ export const db = drizzle(process.env.DATABASE_URL!);
 //   connectionString: process.env.DATABASE_URL!,
 // });
 // const db = drizzle({ client: pool });
-
 
 // Test code
 

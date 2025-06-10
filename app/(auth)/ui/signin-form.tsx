@@ -2,7 +2,9 @@
 import Link from "next/link";
 import { Loader2Icon } from "lucide-react";
 
-import { startTransition, useActionState, useRef } from "react";
+import { startTransition, useActionState, useEffect, useRef } from "react";
+
+import { toast } from "sonner";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -23,14 +25,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { signup } from "@/app/actions/auth";
+import { signin } from "@/app/actions/auth";
 import { SigninFormSchema } from "@/app/lib/definitions";
 
 // https://dev.to/emmanuel_xs/how-to-use-react-hook-form-with-useactionstate-hook-in-nextjs15-1hja
 
 export function SigninForm() {
   const formRef = useRef<HTMLFormElement>(null);
-  const [state, action, pending] = useActionState(signup, undefined);
+  const [state, action, pending] = useActionState(signin, undefined);
 
   const form = useForm<z.infer<typeof SigninFormSchema>>({
     resolver: zodResolver(SigninFormSchema),
@@ -40,6 +42,15 @@ export function SigninForm() {
   const onInvalid = () => {
     startTransition(() => action(new FormData(formRef.current!)));
   };
+
+  useEffect(() => {
+    if (state?.message) {
+      toast.error(state?.message, {
+        className: "!text-destructive",
+        position: "top-center",
+      });
+    }
+  }, [state]);
 
   return (
     <div className="mx-auto w-96 pt-24">

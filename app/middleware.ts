@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 
 // 1. Specify protected and public routes
 const protectedRoutes = ["/dashboard"];
-const publicRoutes = ["/login", "/signup", "/"];
+const publicRoutes = ["/signin", "/signup", "/"];
 
 export default async function middleware(req: NextRequest) {
   // 2. Check if the current route is protected or public
@@ -19,9 +19,9 @@ export default async function middleware(req: NextRequest) {
 
   const session = await decrypt(cookie?.value);
 
-  // 4. Redirect to /login if the user is not authenticated
+  // 4. Redirect to /signin if the user is not authenticated
   if (isProtectedRoute && !session?.userId) {
-    return NextResponse.redirect(new URL("/login", req.nextUrl));
+    return NextResponse.redirect(new URL("/signin", req.nextUrl));
   }
 
   // 5. Redirect to /dashboard if the user is authenticated

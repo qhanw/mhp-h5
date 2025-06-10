@@ -17,23 +17,30 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { signout } from "@/app/actions/auth";
-// import { verifySession } from "@/app/lib/dal";
+import { Button } from "@/components/ui/button";
 
-export function Sign() {
+import { signout } from "@/app/actions/auth";
+import { getUser } from "@/app/lib/dal";
+
+export async function Sign() {
   //   const [state, action, pending] = useActionState(signout, null);
   //   const logout = () => startTransition(() => action());
 
   //   const session = await verifySession();
   //   const userRole = session?.userId ? "user" : "admin"; // Assuming 'role' is part of the session object
 
-  return (
+  const user = await getUser();
+
+  return user ? (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+        <div className="flex items-center gap-2">
+          <Avatar>
+            <AvatarImage src="https://github.com/shadcn.png" />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+          {user?.username}
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="start">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
@@ -99,5 +106,9 @@ export function Sign() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  ) : (
+    <Button variant="ghost" asChild>
+      <Link href="/signin">Sign In</Link>
+    </Button>
   );
 }

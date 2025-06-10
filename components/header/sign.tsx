@@ -1,3 +1,4 @@
+// import { startTransition, useActionState } from "react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -16,7 +17,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { signout } from "@/app/actions/auth";
+// import { verifySession } from "@/app/lib/dal";
+
 export function Sign() {
+  //   const [state, action, pending] = useActionState(signout, null);
+  //   const logout = () => startTransition(() => action());
+
+  //   const session = await verifySession();
+  //   const userRole = session?.userId ? "user" : "admin"; // Assuming 'role' is part of the session object
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -83,7 +93,7 @@ export function Sign() {
         <DropdownMenuItem>Support</DropdownMenuItem>
         <DropdownMenuItem disabled>API</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={signout}>
           Log out
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>

@@ -1,13 +1,31 @@
-import { pgTable, uuid,  uniqueIndex, bigserial, text, integer, timestamp, bigint, unique, varchar } from "drizzle-orm/pg-core"
+import { pgTable, uuid, text, integer, timestamp, date, boolean, foreignKey } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
-import { number } from "zod";
+
+export const profiles = pgTable("profiles", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	userId: uuid('user_id').notNull(),
+	nickname: text(),
+	sex: text(),
+	age: integer(),
+	avatar: text(),
+	bio: text(),
+	birthday: date(),
+	phoneNumber: text("phone_number"),
+	country: text(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({ columns: [table.userId], foreignColumns: [users.id], name: "profiles_id_fkey" }),
+]);
 
 export const users = pgTable("users", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: uuid().defaultRandom().primaryKey().notNull(),
-	username: text().notNull(),
+	username: text().unique().notNull(),
 	email: text().unique().notNull(),
 	password: text().notNull(),
-	age: integer(),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	isActive: boolean('is_active'),
+	isVerified: boolean('is_verified'),
+	lastLogin: timestamp("last_login", { withTimezone: true, mode: 'string' }),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow(),
 });

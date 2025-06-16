@@ -17,7 +17,7 @@ export const users = pgTable("users", {
 
 export const profiles = pgTable("profiles", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
-	userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+	userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade', onUpdate:'cascade' }).notNull(),
 	nickname: text(),
 	sex: text(),
 	age: integer(),

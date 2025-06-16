@@ -32,6 +32,7 @@ export const getUser = cache(async () => {
   try {
     const user = await db.query.users.findFirst({
       where: (users, { eq }) => eq(users.id, session.userId as string),
+      with: { profile: true },
       // Explicitly return the columns you need rather than the whole user object
       columns: {
         id: true,
@@ -40,8 +41,8 @@ export const getUser = cache(async () => {
       },
     });
     return user;
-  } catch {
-    console.log("Failed to fetch user");
+  } catch (e) {
+    console.log("Failed to fetch user", e);
     return null;
   }
 });

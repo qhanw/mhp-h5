@@ -30,6 +30,7 @@ export async function Sign() {
   //   const userRole = session?.userId ? "user" : "admin"; // Assuming 'role' is part of the session object
 
   const user = await getUser();
+  console.log("user", user);
 
   return user ? (
     <DropdownMenu>

@@ -2,7 +2,9 @@ import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 // import { eq } from "drizzle-orm";
 // import { users as usersTable } from "./schema";
+
 import * as schema from "./schema";
+import * as relations from "./relations";
 export * from "./schema";
 
 export const db = drizzle({
@@ -10,7 +12,7 @@ export const db = drizzle({
     connectionString: process.env.DATABASE_URL,
     // ssl: true // 暂时不开启 否则数据库连接不上
   },
-  schema,
+  schema: { ...schema, ...relations },
 });
 
 // node-postgres with config

@@ -16,8 +16,6 @@ export const getSession = cache(async () => {
 export const verifySession = cache(async () => {
   const session = await getSession();
 
-  console.log("session:", session);
-
   if (!session?.userId) {
     redirect("/signin");
   }
@@ -32,15 +30,24 @@ export const getUser = cache(async () => {
   try {
     const user = await db.query.users.findFirst({
       where: (users, { eq }) => eq(users.id, session.userId as string),
-      with: { profile: true },
-      // Explicitly return the columns you need rather than the whole user object
-      columns: {
-        id: true,
-        username: true,
-        email: true,
+      with: {
+        profile: {
+          columns: {
+            id: false,
+            userId: false,
+            updatedAt: false,
+            createdAt: false,
+          },
+        },
       },
+      // Explicitly return the columns you need rather than the whole user object
+      columns: { password: false, updatedAt: false, createdAt: false },
     });
-    return user;
+
+    if (!user) throw new Error("未查询到用户信息");
+    const { profile, ...rest } = user;
+    
+    return { ...rest, ...profile };
   } catch (e) {
     console.log("Failed to fetch user", e);
     return null;

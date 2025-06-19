@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useActionState, useRef } from "react";
+import { startTransition, useActionState } from "react";
 import { CalendarIcon, Loader2Icon } from "lucide-react";
 
 import { format } from "date-fns";
@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,6 +41,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
+import { DialogAvatarEditor } from "./dialog-avatar-editor";
 
 import { update } from "../actions";
 import { ProfileSchema } from "../actions/definitions";
@@ -77,29 +79,12 @@ export function ProfileForm({ userinfo }: ProfileFormProps) {
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onValid)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="avatar"
-            render={({}) => (
-              <FormItem>
-                <FormLabel>Profile Picture</FormLabel>
-                <FormControl>
-                  <div className="flex gap-2 items-center">
-                    <Avatar className="mr-3 size-16">
-                      <AvatarImage src="https://github.com/shadcn.png" />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <Button variant="outline" size="sm">
-                      Upload photo
-                    </Button>
-                    <Button variant="destructive" size="sm">
-                      Remove
-                    </Button>
-                  </div>
-                </FormControl>
-              </FormItem>
-            )}
-          />
+          <FormItem>
+            <FormLabel>Profile Picture</FormLabel>
+            <FormControl>
+              <DialogAvatarEditor />
+            </FormControl>
+          </FormItem>
 
           <FormField
             control={form.control}

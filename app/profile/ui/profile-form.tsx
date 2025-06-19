@@ -55,36 +55,28 @@ const defaultProfileValues = {
   username: "",
   email: "",
   phoneNumber: "",
-  gender: "woman",
+  gender: undefined,
   birthday: undefined,
   country: "",
   bio: "",
 };
 
 export function ProfileForm({ userinfo }: ProfileFormProps) {
-  const formRef = useRef<HTMLFormElement>(null);
   const [state, action, pending] = useActionState(update, undefined);
-
-  console.log("userinfo", userinfo);
 
   const form = useForm<z.infer<typeof ProfileSchema>>({
     resolver: zodResolver(ProfileSchema),
     defaultValues: { ...defaultProfileValues, ...userinfo },
   });
-  const onInvalid = () => {
-    console.log([...new FormData(formRef.current!).entries()])
-    startTransition(() => action(new FormData(formRef.current!)));
+
+  const onValid = (data: z.infer<typeof ProfileSchema>) => {
+    startTransition(() => action(data));
   };
 
   return (
     <>
       <Form {...form}>
-        <form
-          ref={formRef}
-          onSubmit={form.handleSubmit(onInvalid)}
-          className="space-y-6"
-        >
-          <input type="hidden" {...form.register("id")} />
+        <form onSubmit={form.handleSubmit(onValid)} className="space-y-6">
           <FormField
             control={form.control}
             name="avatar"
@@ -153,7 +145,7 @@ export function ProfileForm({ userinfo }: ProfileFormProps) {
             name="gender"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Gender</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
@@ -202,12 +194,25 @@ export function ProfileForm({ userinfo }: ProfileFormProps) {
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
+                      selected={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date) => {
+                        // Notice: 不知道这里为什么在调用 toISOString时 结尾为时区而不是Z
+                        // Reason: 是因为组件配置了时区
+                        // 当在非0时区的前端调用 toISOString 时，仍然会得到减去当本地时间时区的值
+                        // 因些稳妥方式是使用 date-fns 或 dayjs 进行字符串格式化处理。
+
+                        // 存储为UTC时间
+                        const d = date
+                          ? format(date, "yyyy-MM-dd'T'HH:mm:ss'Z'")
+                          : undefined;
+                        field.onChange(d);
+                      }}
                       disabled={(date) =>
                         date > new Date() || date < new Date("1900-01-01")
                       }
                       captionLayout="dropdown"
+                      // Warn: 这里如果配置了时区，那在接收到的Date对象调用toISOString()方法后，其结果也有时区值
+                      // timeZone="+08:00"
                     />
                   </PopoverContent>
                 </Popover>

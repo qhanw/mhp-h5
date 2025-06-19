@@ -16,7 +16,10 @@ export const ProfileSchema = z.object({
   phoneNumber: z.string().trim().optional(),
 
   gender: z.string().optional(),
-  birthday: z.date().optional(),
+  birthday: z
+    .string()
+    .refine((val) => !isNaN(new Date(val).getTime()))
+    .optional(),
   country: z.string().trim().optional(),
   bio: z.string().trim().optional(),
 });

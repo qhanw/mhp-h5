@@ -1,10 +1,12 @@
 "use server";
 import { cache } from "react";
-import { db } from "@/db";
+import { z } from "zod";
+import { db, profiles, users } from "@/db";
 
 import { verifySession } from "@/app/lib/dal";
 
 import { FormState, ProfileSchema } from "./definitions";
+import { sql, eq } from "drizzle-orm";
 
 /** 用户信息 */
 export const getUserinfo = cache(async () => {
@@ -21,7 +23,7 @@ export const getUserinfo = cache(async () => {
             nickname: false,
             userId: false,
             updatedAt: false,
-            createdAt: false,
+            // createdAt: false,
           },
         },
       },
@@ -29,27 +31,30 @@ export const getUserinfo = cache(async () => {
 
     if (!user) throw new Error("未查询到用户信息");
     const { profile, ...rest } = user;
-    return { ...rest, ...profile };
+    // 只返回查询出来的有值的数据
+    return Object.entries({ ...rest, ...profile }).reduce(
+      (prev, [k, v]) => (v ? { ...prev, [k]: v } : prev),
+      {}
+    );
   } catch (e) {
     console.log("Failed to fetch user", e);
     return null;
   }
 });
 
-export async function update(state: FormState, formData: FormData) {
-  console.log(...formData);
-
+type Payload = z.infer<typeof ProfileSchema>;
+export async function update(state: FormState, payload: Payload) {
   // 1. Validate form fields
   const validateFields = ProfileSchema.safeParse({
-    id: formData.get("id"),
-    avatar: formData.get("avatar"),
-    username: formData.get("username"),
-    email: formData.get("email"),
-    phoneNumber: formData.get("phoneNumber"),
-    gender: formData.get("gender"),
-    birthday: formData.get("birthday"),
-    country: formData.get("country"),
-    bio: formData.get("bio"),
+    id: payload.id,
+    avatar: payload.avatar,
+    username: payload.username,
+    email: payload.email,
+    phoneNumber: payload.phoneNumber,
+    gender: payload.gender,
+    birthday: payload.birthday,
+    country: payload.country,
+    bio: payload.bio,
   });
 
   if (!validateFields.success) {
@@ -57,16 +62,49 @@ export async function update(state: FormState, formData: FormData) {
     return { errors: validateFields.error.flatten().fieldErrors };
   }
 
-  //   // 3. Insert the user into the database or call an Auth Library's API
-  //   const data = await db
-  //     .insert(users)
-  //     .values({ username: name, email, password: hashedPassword })
-  //     .returning({ id: users.id })
-  //     .catch((e) => console.log(e));
+  const {
+    id,
+    username,
+    email,
+    avatar,
+    phoneNumber,
+    gender,
+    birthday,
+    country,
+    bio,
+  } = validateFields.data;
 
-  //   const user = data?.[0];
+  // TODO: 极致性能先对比数据是否发生更新
+  const user = await db
+    .update(users)
+    .set({
+      username,
+      email,
+      updatedAt: sql`NOW()`,
+    })
+    .where(eq(users.id, id))
+    .returning({ id: users.id });
 
-  //   if (!user) {
-  //     return { message: "An error occurred while creating your account." };
-  //   }
+  const info = {
+    avatar,
+    phoneNumber,
+    gender,
+    country,
+    bio,
+    birthday,
+    updatedAt: sql`NOW()`,
+  };
+
+  // 插入数据如果存在则更新数据
+  const profile = await db
+    .insert(profiles)
+    .values({ userId: id, ...info })
+    .onConflictDoUpdate({ target: profiles.userId, set: info })
+    .returning({ id: profiles.id });
+
+  const bool = user?.[0] || profile?.[0];
+
+  if (!bool) {
+    return { message: "An error occurred while updating your userinfo." };
+  }
 }

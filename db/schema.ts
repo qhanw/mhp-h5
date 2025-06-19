@@ -17,12 +17,12 @@ export const users = pgTable("users", {
 
 export const profiles = pgTable("profiles", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
-	userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade', onUpdate:'cascade' }).notNull(),
+	userId: uuid('user_id').unique().references(() => users.id, { onDelete: 'cascade', onUpdate:'cascade' }).notNull(),
 	nickname: text(),
 	gender: text(),
 	avatar: text(),
 	bio: text(),
-	birthday: date(),
+	birthday: date('birthday', { mode: 'string' }),
 	phoneNumber: text("phone_number"),
 	country: text(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),

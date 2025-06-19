@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, integer, timestamp, date, boolean, foreignKey } from "drizzle-orm/pg-core"
+import { pgTable, uuid, text, integer, timestamp, date, boolean, customType } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 
@@ -28,3 +28,14 @@ export const profiles = pgTable("profiles", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 });
+
+
+export const binary = customType<{ data: Buffer;  default: false; }>({  dataType() { return 'bytea' } });
+
+export const avatars = pgTable('avatars', {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	userId: uuid('user_id').unique().references(() => users.id, { onDelete: 'cascade', onUpdate:'cascade' }).notNull(),
+	name: text(),
+	binary_data: binary(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+})

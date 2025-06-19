@@ -1,4 +1,5 @@
 "use server";
+import { revalidateTag } from "next/cache";
 import { cache } from "react";
 import { z } from "zod";
 import { db, profiles, users } from "@/db";
@@ -107,4 +108,6 @@ export async function update(state: FormState, payload: Payload) {
   if (!bool) {
     return { message: "An error occurred while updating your userinfo." };
   }
+
+  revalidateTag("login-user");
 }

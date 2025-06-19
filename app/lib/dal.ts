@@ -2,6 +2,7 @@
 import "server-only";
 
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { decrypt } from "@/app/lib/session";
@@ -23,20 +24,24 @@ export const verifySession = cache(async () => {
   return { isAuth: true, userId: session.userId as string };
 });
 
-export const getUser = cache(async () => {
-  const session = await getSession();
-  if (!session) return null;
+export const getUser = unstable_cache(
+  async () => {
+    const session = await getSession();
+    if (!session) return null;
 
-  try {
-    const user = await db.query.users.findFirst({
-      where: (users, { eq }) => eq(users.id, session.userId as string),
-      // Explicitly return the columns you need rather than the whole user object
-      columns: { id: true, username: true, email: true },
-    });
+    try {
+      const user = await db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.id, session.userId as string),
+        // Explicitly return the columns you need rather than the whole user object
+        columns: { id: true, username: true, email: true },
+      });
 
-    return user;
-  } catch (e) {
-    console.log("Failed to fetch user", e);
-    return null;
-  }
-});
+      return user;
+    } catch (e) {
+      console.log("Failed to fetch user", e);
+      return null;
+    }
+  },
+  [],
+  { tags: ["login-user"], revalidate: 3600 }
+);

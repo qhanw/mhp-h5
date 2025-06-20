@@ -82,7 +82,10 @@ export function ProfileForm({ userinfo }: ProfileFormProps) {
           <FormItem>
             <FormLabel>Profile Picture</FormLabel>
             <FormControl>
-              <DialogAvatarEditor />
+              <DialogAvatarEditor
+                avatar={userinfo?.avatar!}
+                username={userinfo?.username!}
+              />
             </FormControl>
           </FormItem>
 

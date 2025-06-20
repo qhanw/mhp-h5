@@ -1,6 +1,12 @@
 "use client";
 
-import { useRef, useState, startTransition, useActionState } from "react";
+import {
+  useRef,
+  useState,
+  startTransition,
+  useActionState,
+  useEffect,
+} from "react";
 import AvatarEditor from "react-avatar-editor";
 
 import { Loader2Icon } from "lucide-react";
@@ -20,9 +26,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 
+import { hexToBlob } from "@/lib/utils";
+
 import { changeAvatar } from "../actions";
 
-export function DialogAvatarEditor() {
+type DialogAvatarEditorProps = { avatar: string; username: string };
+
+export function DialogAvatarEditor({
+  avatar,
+  username,
+}: DialogAvatarEditorProps) {
   const [state, action, pending] = useActionState(changeAvatar, undefined);
   const [open, setOpen] = useState(false);
   const editorRef = useRef<AvatarEditor | null>(null);
@@ -30,6 +43,8 @@ export function DialogAvatarEditor() {
   const [rotate, setRotate] = useState(0);
   const [scale, setScale] = useState(1.2);
   const [image, setImage] = useState<File | null>(null);
+
+  const [url, setUrl] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -73,12 +88,24 @@ export function DialogAvatarEditor() {
     }
   };
 
+  useEffect(() => {
+    const objectUrl = avatar
+      ? URL.createObjectURL(hexToBlob(avatar, "image/webp"))
+      : "";
+    objectUrl && setUrl(objectUrl);
+
+    // 清理 URL
+    return () => {
+      objectUrl && URL.revokeObjectURL(objectUrl);
+    };
+  }, [avatar]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <div className="flex gap-2 items-center">
         <Avatar className="mr-3 size-16">
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage src={url} />
+          <AvatarFallback>{username?.slice(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
         {/* <DialogTrigger asChild></DialogTrigger> */}
 

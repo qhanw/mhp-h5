@@ -1,26 +1,9 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState, useEffect } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-function hexToBlob(
-  hexString: string,
-  mimeType = "application/octet-stream"
-): Blob {
-  // 1. 移除 \x 前缀
-  if (hexString.startsWith("\\x")) {
-    hexString = hexString.slice(2);
-  }
-
-  // 2. 创建 Uint8Array
-  const bytes = new Uint8Array(hexString.length / 2);
-  for (let i = 0; i < bytes.length; i++) {
-    bytes[i] = parseInt(hexString.slice(i * 2, i * 2 + 2), 16);
-  }
-
-  // 3. 转为 Blob
-  return new Blob([bytes], { type: mimeType });
-}
+import { hexToBlob } from "@/lib/utils";
 
 export function Account({ info }: { info: any }) {
   const [url, setUrl] = useState("");
@@ -37,7 +20,7 @@ export function Account({ info }: { info: any }) {
   }, [info.avatar]);
 
   return (
-    <div className="flex items-center gap-2">
+    <>
       <Avatar>
         <AvatarImage src={url} />
         <AvatarFallback>
@@ -45,6 +28,6 @@ export function Account({ info }: { info: any }) {
         </AvatarFallback>
       </Avatar>
       {info?.username}
-    </div>
+    </>
   );
 }

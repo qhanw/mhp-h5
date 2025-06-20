@@ -27,13 +27,14 @@ export const getUserinfo = cache(async () => {
             // createdAt: false,
           },
         },
+        avatar: { columns: { avatar: true } },
       },
     });
 
     if (!user) throw new Error("未查询到用户信息");
-    const { profile, ...rest } = user;
+    const { profile, avatar, ...rest } = user;
     // 只返回查询出来的有值的数据
-    return Object.entries({ ...rest, ...profile }).reduce(
+    return Object.entries({ ...rest, ...profile, ...avatar }).reduce(
       (prev, [k, v]) => (v ? { ...prev, [k]: v } : prev),
       {}
     );

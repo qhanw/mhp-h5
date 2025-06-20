@@ -34,9 +34,10 @@ export const getUser = unstable_cache(
         where: (users, { eq }) => eq(users.id, session.userId as string),
         // Explicitly return the columns you need rather than the whole user object
         columns: { id: true, username: true, email: true },
+        with: { avatar: { columns: { avatar: true } } },
       });
 
-      return user;
+      return { ...user, avatar: user?.avatar.avatar as unknown as string };
     } catch (e) {
       console.log("Failed to fetch user", e);
       return null;

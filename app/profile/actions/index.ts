@@ -2,11 +2,11 @@
 import { revalidateTag } from "next/cache";
 import { cache } from "react";
 import { z } from "zod";
-import { db, profiles, users } from "@/db";
+import { db, profiles, users, avatars } from "@/db";
 
 import { verifySession } from "@/app/lib/dal";
 
-import { FormState, ProfileSchema } from "./definitions";
+import { FormState, ProfileSchema, AvatarSchema } from "./definitions";
 import { sql, eq } from "drizzle-orm";
 
 /** 用户信息 */
@@ -107,6 +107,39 @@ export async function update(state: FormState, payload: Payload) {
 
   if (!bool) {
     return { message: "An error occurred while updating your userinfo." };
+  }
+
+  revalidateTag("login-user");
+}
+
+export async function changeAvatar(state: FormState, formData: FormData) {
+  const { userId } = await verifySession();
+
+  const validateFields = AvatarSchema.safeParse({
+    avatar: formData.get("avatar"),
+    description: formData.get("filename") || "",
+  });
+
+  if (!validateFields.success) {
+    console.log(validateFields.error.flatten().fieldErrors);
+    return { errors: validateFields.error.flatten().fieldErrors };
+  }
+
+  const { avatar, description } = validateFields.data;
+
+  const buffer = await avatar.arrayBuffer();
+  const uint8Array = Buffer.from(buffer);
+
+  const d = { description, avatar: uint8Array };
+
+  const res = await db
+    .insert(avatars)
+    .values({ userId, ...d })
+    .onConflictDoUpdate({ target: avatars.userId, set: d })
+    .returning({ id: avatars.id });
+
+  if (!res) {
+    return { message: "An error occurred while updating your picture." };
   }
 
   revalidateTag("login-user");

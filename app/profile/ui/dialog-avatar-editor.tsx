@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import { useRef, useState, startTransition, useActionState } from "react";
 import AvatarEditor from "react-avatar-editor";
 
+import { Loader2Icon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,10 +19,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Bold } from "lucide-react";
+
+import { changeAvatar } from "../actions";
 
 export function DialogAvatarEditor() {
-  const [open, setOpen] = React.useState(false);
+  const [state, action, pending] = useActionState(changeAvatar, undefined);
+  const [open, setOpen] = useState(false);
   const editorRef = useRef<AvatarEditor | null>(null);
 
   const [rotate, setRotate] = useState(0);
@@ -39,29 +42,34 @@ export function DialogAvatarEditor() {
   const handleSave = () => {
     if (editorRef.current) {
       const canvas = editorRef.current.getImageScaledToCanvas();
-      const dataURL = canvas.toDataURL();
+      // const dataURL = canvas.toDataURL();
+      // console.log("Avatar dataURL:", dataURL);
 
       // 转为 Blob (推荐)
-      // canvas.toBlob(
-      //   async (blob) => {
-      //     if (blob) {
-      //       const formData = new FormData();
-      //       formData.append("avatar", blob, "avatar.jpg");
-      //       // 3. 上传到服务器
-      //       // const response = await axios.post("/api/upload-avatar", formData, {
-      //       //   headers: {
-      //       //     "Content-Type": "multipart/form-data",
-      //       //   },
-      //       // });
+      canvas.toBlob(
+        async (blob) => {
+          if (blob) {
+            const formData = new FormData();
+            formData.append("avatar", blob, "avatar.webp");
+            formData.append("filename", "avatar.webp");
 
-      //       // console.log("上传成功:", response.data);
-      //     }
-      //   },
-      //   "image/png",
-      //   0.92
-      // ); // 0.92 是 JPEG 质量
+            startTransition(() => action(formData));
 
-      console.log("Avatar dataURL:", dataURL);
+            // 3. 上传到服务器
+            // const response = await axios.post("/api/upload-avatar", formData, {
+            //   headers: {
+            //     "Content-Type": "multipart/form-data",
+            //   },
+            // });
+
+            // console.log("上传成功:", response.data);
+
+            setOpen(false);
+          }
+        },
+        "image/webp",
+        0.8
+      );
     }
   };
 
@@ -137,7 +145,9 @@ export function DialogAvatarEditor() {
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button type="submit" onClick={handleSave}>
+
+          <Button type="submit" onClick={handleSave} disabled={pending}>
+            {pending && <Loader2Icon className="animate-spin" />}
             Save changes
           </Button>
         </DialogFooter>

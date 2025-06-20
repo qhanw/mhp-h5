@@ -35,7 +35,7 @@ export const binary = customType<{ data: Buffer;  default: false; }>({  dataType
 export const avatars = pgTable('avatars', {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	userId: uuid('user_id').unique().references(() => users.id, { onDelete: 'cascade', onUpdate:'cascade' }).notNull(),
-	name: text(),
-	binary_data: binary(),
+	avatar: binary(),
+	description: text(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 })

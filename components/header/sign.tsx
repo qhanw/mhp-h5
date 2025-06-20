@@ -19,6 +19,8 @@ import {
 
 import { Button } from "@/components/ui/button";
 
+import { Account } from "./account";
+
 import { signout } from "@/app/actions/auth";
 import { getUser } from "@/app/lib/dal";
 
@@ -30,17 +32,12 @@ export async function Sign() {
   //   const userRole = session?.userId ? "user" : "admin"; // Assuming 'role' is part of the session object
 
   const user = await getUser();
-  console.log("user", user);
 
   return user ? (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="flex items-center gap-2">
-          <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-          {user?.username}
+          <Account info={user} />
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="start">

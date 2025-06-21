@@ -37,6 +37,11 @@ export function DialogAvatarEditor({
   avatar,
   username,
 }: DialogAvatarEditorProps) {
+  const [delState, delAction, delPending] = useActionState(
+    removeAvatar,
+    undefined
+  );
+
   const [state, action, pending] = useActionState(changeAvatar, undefined);
   const [open, setOpen] = useState(false);
   const editorRef = useRef<AvatarEditor | null>(null);
@@ -111,6 +116,15 @@ export function DialogAvatarEditor({
     }
   }, [pending, state]);
 
+  useEffect(() => {
+    if (!delPending && delState) {
+      toast.error(delState.message, {
+        className: "!text-destructive",
+        position: "top-center",
+      });
+    }
+  }, [delPending, delState]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <div className="flex gap-2 items-center">
@@ -131,7 +145,13 @@ export function DialogAvatarEditor({
             />
           </Label>
         </Button>
-        <Button variant="destructive" size="sm" onClick={removeAvatar}>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => startTransition(() => delAction())}
+          disabled={delPending || !url}
+        >
+          {delPending && <Loader2Icon className="animate-spin" />}
           Remove
         </Button>
       </div>

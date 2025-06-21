@@ -10,6 +10,7 @@ import {
 import AvatarEditor from "react-avatar-editor";
 
 import { Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +30,7 @@ import { Slider } from "@/components/ui/slider";
 import { hexToBlob } from "@/lib/utils";
 
 import { changeAvatar } from "../actions";
+import { ms } from "date-fns/locale";
 
 type DialogAvatarEditorProps = { avatar: string; username: string };
 
@@ -78,8 +80,6 @@ export function DialogAvatarEditor({
             // });
 
             // console.log("上传成功:", response.data);
-
-            setOpen(false);
           }
         },
         "image/webp",
@@ -88,6 +88,7 @@ export function DialogAvatarEditor({
     }
   };
 
+  // 转换图片数据为可显示的图片数据
   useEffect(() => {
     const objectUrl = avatar
       ? URL.createObjectURL(hexToBlob(avatar, "image/webp"))
@@ -99,6 +100,30 @@ export function DialogAvatarEditor({
       objectUrl && URL.revokeObjectURL(objectUrl);
     };
   }, [avatar]);
+
+  useEffect(() => {
+    // 当图片更新成功
+    if (!pending) {
+      // 保存成功
+      if (!state) setOpen(false);
+
+      // 保存失败 数据库错误
+      let msg = state?.message;
+      
+      // 保存失败 字段验证错误
+      if (state?.errors) {
+        const err = Object.entries(state?.errors)[0];
+        msg = `[${err[0]}]: ${err[1][0]}`;
+      }
+
+      if (msg) {
+        toast.error(msg, {
+          className: "!text-destructive",
+          position: "top-center",
+        });
+      }
+    }
+  }, [pending, state]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

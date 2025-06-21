@@ -27,10 +27,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 
-import { hexToBlob } from "@/lib/utils";
+import { useHexToAvatarUrl } from "@/hooks/use-avatar-url";
 
 import { changeAvatar } from "../actions";
-import { ms } from "date-fns/locale";
 
 type DialogAvatarEditorProps = { avatar: string; username: string };
 
@@ -46,7 +45,7 @@ export function DialogAvatarEditor({
   const [scale, setScale] = useState(1.2);
   const [image, setImage] = useState<File | null>(null);
 
-  const [url, setUrl] = useState("");
+  const url = useHexToAvatarUrl(avatar);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -88,19 +87,6 @@ export function DialogAvatarEditor({
     }
   };
 
-  // 转换图片数据为可显示的图片数据
-  useEffect(() => {
-    const objectUrl = avatar
-      ? URL.createObjectURL(hexToBlob(avatar, "image/webp"))
-      : "";
-    objectUrl && setUrl(objectUrl);
-
-    // 清理 URL
-    return () => {
-      objectUrl && URL.revokeObjectURL(objectUrl);
-    };
-  }, [avatar]);
-
   useEffect(() => {
     // 当图片更新成功
     if (!pending) {
@@ -109,7 +95,7 @@ export function DialogAvatarEditor({
 
       // 保存失败 数据库错误
       let msg = state?.message;
-      
+
       // 保存失败 字段验证错误
       if (state?.errors) {
         const err = Object.entries(state?.errors)[0];

@@ -34,7 +34,7 @@ const getCachedUser = unstable_cache(
         with: { avatar: { columns: { avatar: true } } },
       });
 
-      return { ...user, avatar: user?.avatar.avatar as unknown as string };
+      return { ...user, avatar: user?.avatar?.avatar as unknown as string };
     } catch (e) {
       console.log("Failed to fetch user", e);
       return null;

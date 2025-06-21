@@ -20,7 +20,7 @@ export const profiles = pgTable("profiles", {
 	userId: uuid('user_id').unique().references(() => users.id, { onDelete: 'cascade', onUpdate:'cascade' }).notNull(),
 	nickname: text(),
 	gender: text(),
-	avatar: text(),
+	avatar: text(), // 暂时不用作存储 对象OSS
 	bio: text(),
 	birthday: date('birthday', { mode: 'string' }),
 	phoneNumber: text("phone_number"),

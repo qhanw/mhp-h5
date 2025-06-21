@@ -29,7 +29,7 @@ import { Slider } from "@/components/ui/slider";
 
 import { useHexToAvatarUrl } from "@/hooks/use-avatar-url";
 
-import { changeAvatar } from "../actions";
+import { changeAvatar, removeAvatar } from "../actions";
 
 type DialogAvatarEditorProps = { avatar: string; username: string };
 
@@ -131,7 +131,7 @@ export function DialogAvatarEditor({
             />
           </Label>
         </Button>
-        <Button variant="destructive" size="sm">
+        <Button variant="destructive" size="sm" onClick={removeAvatar}>
           Remove
         </Button>
       </div>

@@ -47,13 +47,15 @@ import { DialogAvatarEditor } from "./dialog-avatar-editor";
 import { update } from "../actions";
 import { ProfileSchema } from "../actions/definitions";
 
-export type UserInfo = z.infer<typeof ProfileSchema> | null;
+export type UserInfo =
+  | (z.infer<typeof ProfileSchema> & { avatar: string })
+  | null;
 
 type ProfileFormProps = { userinfo: UserInfo };
 
 const defaultProfileValues = {
   id: "",
-  avatar: "",
+  // avatar: "",
   username: "",
   email: "",
   phoneNumber: "",

@@ -49,7 +49,7 @@ export async function update(state: FormState, payload: Payload) {
   // 1. Validate form fields
   const validateFields = ProfileSchema.safeParse({
     id: payload.id,
-    avatar: payload.avatar,
+    // avatar: payload.avatar,
     username: payload.username,
     email: payload.email,
     phoneNumber: payload.phoneNumber,
@@ -64,17 +64,8 @@ export async function update(state: FormState, payload: Payload) {
     return { errors: validateFields.error.flatten().fieldErrors };
   }
 
-  const {
-    id,
-    username,
-    email,
-    avatar,
-    phoneNumber,
-    gender,
-    birthday,
-    country,
-    bio,
-  } = validateFields.data;
+  const { id, username, email, phoneNumber, gender, birthday, country, bio } =
+    validateFields.data;
 
   // TODO: 极致性能先对比数据是否发生更新
   const user = await db
@@ -88,7 +79,6 @@ export async function update(state: FormState, payload: Payload) {
     .returning({ id: users.id });
 
   const info = {
-    avatar,
     phoneNumber,
     gender,
     country,
@@ -141,6 +131,21 @@ export async function changeAvatar(state: FormState, formData: FormData) {
 
   if (!res) {
     return { message: "An error occurred while updating your picture." };
+  }
+
+  revalidateTag("login-user");
+}
+
+export async function removeAvatar() {
+  const { userId } = await verifySession();
+
+  const res = await db
+    .delete(avatars)
+    .where(eq(avatars.userId, userId))
+    .returning({ id: avatars.userId });
+
+  if (!res) {
+    return { message: "An error occurred while delete your picture." };
   }
 
   revalidateTag("login-user");

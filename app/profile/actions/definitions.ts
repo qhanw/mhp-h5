@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const ProfileSchema = z.object({
   id: z.string().uuid(),
-  avatar: z.string().trim().optional(),
+  // avatar: z.string().trim().optional(),
   username: z
     .string()
     .min(2, { message: "Name must be at least 2 characters long." })

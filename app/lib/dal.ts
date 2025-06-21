@@ -24,14 +24,11 @@ export const verifySession = cache(async () => {
   return { isAuth: true, userId: session.userId as string };
 });
 
-export const getUser = unstable_cache(
-  async () => {
-    const session = await getSession();
-    if (!session) return null;
-
+const getCachedUser = unstable_cache(
+  async (userId: string) => {
     try {
       const user = await db.query.users.findFirst({
-        where: (users, { eq }) => eq(users.id, session.userId as string),
+        where: (users, { eq }) => eq(users.id, userId),
         // Explicitly return the columns you need rather than the whole user object
         columns: { id: true, username: true, email: true },
         with: { avatar: { columns: { avatar: true } } },
@@ -46,3 +43,9 @@ export const getUser = unstable_cache(
   [],
   { tags: ["login-user"], revalidate: 3600 }
 );
+
+export const getUser = cache(async () => {
+  const session = await getSession();
+  if (!session) return null;
+  return await getCachedUser(session.userId as string);
+});

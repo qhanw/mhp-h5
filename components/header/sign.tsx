@@ -25,11 +25,8 @@ import { signout } from "@/app/actions/auth";
 import { getUser } from "@/app/lib/dal";
 
 export async function Sign() {
-  //   const [state, action, pending] = useActionState(signout, null);
-  //   const logout = () => startTransition(() => action());
-
-  //   const session = await verifySession();
-  //   const userRole = session?.userId ? "user" : "admin"; // Assuming 'role' is part of the session object
+  // const session = await getSession();
+  // const userRole = session?.userId ? "user" : "admin"; // Assuming 'role' is part of the session object
 
   const user = await getUser();
 

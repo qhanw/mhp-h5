@@ -34,10 +34,13 @@ const getCachedUser = unstable_cache(
         with: { avatar: { columns: { avatar: true } } },
       });
 
-      return { ...user, avatar: user?.avatar?.avatar as unknown as string };
+      return {
+        ...user,
+        avatar: user?.avatar?.avatar as string | undefined,
+      };
     } catch (e) {
       console.log("Failed to fetch user", e);
-      return null;
+      return;
     }
   },
   [],
@@ -46,6 +49,6 @@ const getCachedUser = unstable_cache(
 
 export const getUser = cache(async () => {
   const session = await getSession();
-  if (!session) return null;
+  if (!session) return;
   return await getCachedUser(session.userId as string);
 });

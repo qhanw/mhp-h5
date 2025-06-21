@@ -10,6 +10,6 @@ export default async function Dashboard() {
   } else if (userRole === "user") {
     return <div>This page is dashboard, current role: user</div>;
   } else {
-    redirect("/signin");
+    redirect("/");
   }
 }

@@ -9,7 +9,7 @@ export function HeaderWrapper({ children }: { children: React.ReactNode }) {
   if (["/sign", "/dashboard"].some((c) => pathname.startsWith(c))) return null;
 
   return (
-    <header className="flex gap-2 bg-background sticky top-0 z-50 w-full px-6">
+    <header className="flex gap-2 bg-background sticky top-0 z-50 w-full px-3">
       {children}
     </header>
   );

@@ -6,7 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useHexToAvatarUrl } from "@/hooks/use-avatar-url";
 
 export function Account({ info }: { info: any }) {
-  
   const url = useHexToAvatarUrl(info.avatar);
 
   return (

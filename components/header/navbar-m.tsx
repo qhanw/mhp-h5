@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react";
@@ -63,8 +65,16 @@ const components: { title: string; href: string; description: string }[] = [
 ];
 
 export function NavbarM() {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  // 路由变化时自动关闭菜单
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon">
           <Menu className="w-8 h-8" />
@@ -150,7 +160,7 @@ export function NavbarM() {
                 href="/docs"
                 title="Documentation"
               />
-              <ListItem className="list-none" href="/docs" title="Blog" />
+              <ListItem href="/profile" title="Profile" />
             </AccordionContent>
           </AccordionItem>
 
